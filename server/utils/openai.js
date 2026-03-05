@@ -1,11 +1,14 @@
 const OpenAI = require('openai');
 
 const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
+    apiKey: process.env.GROQ_API_KEY,
+    baseURL: 'https://api.groq.com/openai/v1',
 });
 
+const MODEL = process.env.LLM_MODEL || 'llama-3.3-70b-versatile';
+
 /**
- * Analyze a single medicine using OpenAI GPT
+ * Analyze a single medicine using LLM
  * @param {string} medicineName
  * @param {string} language - 'en' or 'ta'
  * @returns {Promise<Object>} - Structured medicine info
@@ -35,7 +38,7 @@ If the input is not a medicine, return: {"medicine": "${medicineName}", "error":
 `;
 
     const response = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
+        model: MODEL,
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.3,
         max_tokens: 600,
@@ -91,7 +94,7 @@ Return ONLY the JSON. If no interactions found, return empty interactions array.
 `;
 
     const response = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
+        model: MODEL,
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.3,
         max_tokens: 800,
@@ -124,7 +127,7 @@ Return ONLY the JSON. No extra text.
 `;
 
     const response = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
+        model: MODEL,
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.3,
         max_tokens: 800,
@@ -140,4 +143,41 @@ Return ONLY the JSON. No extra text.
     }
 };
 
-module.exports = { analyzeMedicine, checkDrugInteractions, translateToTamil };
+/**
+ * Extract medicine names from raw OCR text using LLM
+ * @param {string} text - Raw extracted text
+ * @returns {Promise<string[]>} - Array of medicine names
+ */
+const extractMedicinesFromText = async (text) => {
+    const prompt = `
+Extract only the medicine/drug names from the following messy OCR text. 
+Exclude dosages (mg, ml), quantities, and non-medicine words.
+Return ONLY a valid JSON array of strings. No extra text or formatting.
+
+Text:
+"""
+${text}
+"""
+
+JSON array:
+`;
+
+    const response = await openai.chat.completions.create({
+        model: MODEL,
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.1,
+        max_tokens: 300,
+    });
+
+    const content = response.choices[0].message.content.trim();
+    try {
+        const result = JSON.parse(content);
+        return Array.isArray(result) ? result : [];
+    } catch {
+        const jsonMatch = content.match(/\[[\s\S]*\]/);
+        if (jsonMatch) return JSON.parse(jsonMatch[0]);
+        return [];
+    }
+};
+
+module.exports = { analyzeMedicine, checkDrugInteractions, translateToTamil, extractMedicinesFromText };

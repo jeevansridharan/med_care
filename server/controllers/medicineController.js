@@ -32,7 +32,14 @@ const uploadAndExtract = async (req, res) => {
         // Clean up uploaded file after extraction
         fs.unlink(filePath, (err) => { if (err) console.warn('Failed to delete temp file:', err.message); });
 
-        const medicines = parseMedicineNames(rawText);
+        // Use AI to extract clean medicine names from messy OCR text
+        const { extractMedicinesFromText } = require('../utils/openai');
+        let medicines = await extractMedicinesFromText(rawText);
+
+        // Fallback to regex if AI fails or returns nothing
+        if (!medicines || medicines.length === 0) {
+            medicines = parseMedicineNames(rawText);
+        }
 
         if (medicines.length === 0) {
             return res.status(422).json({
