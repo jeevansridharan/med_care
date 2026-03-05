@@ -7,7 +7,7 @@ const Layout = ({ children }) => {
             <Sidebar />
 
             {/* Main Content */}
-            <main className="flex-1 lg:ml-72 relative min-h-screen overflow-x-hidden">
+            <main className="flex-1 lg:ml-60 relative min-h-screen overflow-x-hidden">
                 {/* Background Blobs - Enhanced */}
                 <div className="fixed inset-0 pointer-events-none overflow-hidden select-none z-0">
                     <div className="absolute top-[-20%] right-[-10%] w-[800px] h-[800px] bg-indigo-500/[0.08] blur-[140px] rounded-full animate-pulse" />

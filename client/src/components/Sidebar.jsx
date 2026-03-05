@@ -46,7 +46,7 @@ const Sidebar = () => {
 
             {/* Sidebar */}
             <aside className={`
-                fixed top-0 left-0 h-full w-72 z-[55]
+                fixed top-0 left-0 h-full w-60 z-[55]
                 flex flex-col
                 bg-[#0a0c10]/80 backdrop-blur-3xl border-r border-white/5 shadow-2xl
                 transition-transform duration-500 cubic-bezier(0.4, 0, 0.2, 1)
