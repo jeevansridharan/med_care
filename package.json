@@ -1,0 +1,16 @@
+{
+    "name": "ai-medicine-explainer-root",
+    "version": "1.0.0",
+    "description": "Root package for AI Medicine Explainer",
+    "main": "index.js",
+    "scripts": {
+        "start": "concurrently \"npm run start --prefix server\" \"npm run dev --prefix client\"",
+        "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+        "server": "npm run dev --prefix server",
+        "client": "npm run dev --prefix client",
+        "install-all": "npm install --prefix server && npm install --prefix client"
+    },
+    "devDependencies": {
+        "concurrently": "^8.2.2"
+    }
+}
