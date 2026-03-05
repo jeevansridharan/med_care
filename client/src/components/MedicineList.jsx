@@ -7,18 +7,7 @@ const MedicineList = ({ medicines, onAnalyze, onRemove, isAnalyzing }) => {
     if (!medicines || medicines.length === 0) return null;
 
     return (
-        <div className="space-y-4">
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
-                        <Pill size={16} className="text-cyan-400" />
-                    </div>
-                    <h2 className="text-white font-semibold">
-                        {t('medicines.found')}
-                        <span className="ml-2 badge badge-primary">{medicines.length}</span>
-                    </h2>
-                </div>
-            </div>
+        <div className="space-y-6">
 
             {/* Medicine tags */}
             <div className="flex flex-wrap gap-2">

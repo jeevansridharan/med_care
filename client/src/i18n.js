@@ -11,6 +11,7 @@ const resources = {
                 home: 'Home',
                 history: 'History',
                 schedule: 'Schedule',
+                interactions: 'Interactions',
                 about: 'About',
             },
             // Upload
@@ -111,6 +112,7 @@ const resources = {
                 home: 'முகப்பு',
                 history: 'வரலாறு',
                 schedule: 'அட்டவணை',
+                interactions: 'இடைவினைகள்',
                 about: 'பற்றி',
             },
             // Upload

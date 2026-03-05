@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-hot-toast';
-import { Save, Sparkles } from 'lucide-react';
+import { Save, Sparkles, UploadCloud, Activity } from 'lucide-react';
 import ImageUploader from '../components/ImageUploader';
 import MedicineList from '../components/MedicineList';
 import MedicineCard from '../components/MedicineCard';
 import DrugInteractions from '../components/DrugInteractions';
-import LanguageSelector from '../components/LanguageSelector';
 import { medicineAPI } from '../api';
 
 const HomePage = () => {
@@ -102,100 +101,112 @@ const HomePage = () => {
     };
 
     return (
-        <div className="max-w-4xl mx-auto px-4 py-8 space-y-8">
-            {/* Hero */}
-            <div className="text-center space-y-4 py-8">
-                <div className="flex items-center justify-center gap-3 mb-2">
-                    <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
-                        <span className="text-3xl">💊</span>
-                    </div>
+        <div className="space-y-8 fade-in-up">
+            {/* Header Area */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div className="space-y-2">
+                    <h1 className="text-3xl font-black text-white flex items-center gap-3">
+                        <Activity className="text-indigo-400" size={32} />
+                        Analyze <span className="gradient-text">Medications</span>
+                    </h1>
+                    <p className="text-gray-400">Upload prescriptions or enter names to get AI-powered medical insights.</p>
                 </div>
-                <h1 className="text-4xl md:text-5xl font-black gradient-text">
-                    {t('appName')}
-                </h1>
-                <p className="text-gray-400 text-lg max-w-xl mx-auto">{t('tagline')}</p>
-                <div className="flex justify-center">
-                    <LanguageSelector />
-                </div>
+
+                {step > 1 && (
+                    <button onClick={handleReset} className="btn-secondary text-xs font-bold uppercase tracking-wider px-4 py-2">
+                        Reset Analysis
+                    </button>
+                )}
             </div>
 
-            {/* Step 1: Upload */}
-            {step >= 1 && (
-                <div className="glass-card p-6 space-y-4">
-                    <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-400 font-bold text-sm">1</div>
-                        <h2 className="text-white font-bold text-lg">{t('upload.title')}</h2>
-                    </div>
-                    <p className="text-gray-400 text-sm">{t('upload.subtitle')}</p>
-                    <ImageUploader
-                        onFileAccepted={handleFileAccepted}
-                        onTextSubmit={handleTextSubmit}
-                        isLoading={isExtracting}
-                    />
-                </div>
-            )}
-
-            {/* Step 2: Medicine List */}
-            {step >= 2 && medicines.length > 0 && (
-                <div className="glass-card p-6 space-y-4 fade-in-up">
-                    <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-cyan-500/20 flex items-center justify-center text-cyan-400 font-bold text-sm">2</div>
-                        <h2 className="text-white font-bold text-lg">{t('medicines.found')}</h2>
-                    </div>
-                    <MedicineList
-                        medicines={medicines}
-                        onAnalyze={handleAnalyze}
-                        onRemove={handleRemoveMedicine}
-                        isAnalyzing={isAnalyzing}
-                    />
-                </div>
-            )}
-
-            {/* Step 3: Results */}
-            {step === 3 && analysisResults.length > 0 && (
-                <div className="space-y-4 fade-in-up">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400 font-bold text-sm">3</div>
-                            <h2 className="text-white font-bold text-lg flex items-center gap-2">
-                                <Sparkles size={18} className="text-indigo-400" />
-                                AI Analysis Results
-                            </h2>
+            <div className="grid grid-cols-1 gap-8">
+                {/* Step 1: Upload */}
+                {step === 1 && (
+                    <div className="glass-card p-8 space-y-6">
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
+                                <UploadCloud className="text-indigo-400" size={24} />
+                            </div>
+                            <div>
+                                <h2 className="text-white font-bold text-xl">{t('upload.title')}</h2>
+                                <p className="text-gray-500 text-sm">{t('upload.subtitle')}</p>
+                            </div>
                         </div>
-                        <div className="flex gap-2">
+
+                        <div className="p-1 rounded-[2rem] bg-indigo-500/5 border border-indigo-500/10">
+                            <ImageUploader
+                                onFileAccepted={handleFileAccepted}
+                                onTextSubmit={handleTextSubmit}
+                                isLoading={isExtracting}
+                            />
+                        </div>
+                    </div>
+                )}
+
+                {/* Step 2: Medicine List */}
+                {step === 2 && medicines.length > 0 && (
+                    <div className="glass-card p-8 space-y-6 fade-in-up">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+                                    <Activity className="text-cyan-400" size={24} />
+                                </div>
+                                <div>
+                                    <h2 className="text-white font-bold text-xl">{t('medicines.found')}</h2>
+                                    <p className="text-gray-500 text-sm">Review the list before starting AI analysis.</p>
+                                </div>
+                            </div>
+                            <span className="badge badge-primary">{medicines.length} Found</span>
+                        </div>
+
+                        <MedicineList
+                            medicines={medicines}
+                            onAnalyze={handleAnalyze}
+                            onRemove={handleRemoveMedicine}
+                            isAnalyzing={isAnalyzing}
+                        />
+                    </div>
+                )}
+
+                {/* Step 3: Results */}
+                {step === 3 && analysisResults.length > 0 && (
+                    <div className="space-y-6 fade-in-up">
+                        <div className="flex items-center justify-between p-2">
+                            <h2 className="text-white font-bold text-xl flex items-center gap-3">
+                                <Sparkles size={24} className="text-indigo-400" />
+                                AI Medical Insights
+                            </h2>
                             <button
                                 onClick={handleSaveAll}
                                 disabled={isSaving}
-                                className="btn-secondary text-sm flex items-center gap-2 py-2"
+                                className="btn-primary text-sm flex items-center gap-2 py-2 px-6"
                             >
-                                <Save size={15} />
+                                <Save size={16} />
                                 {isSaving ? 'Saving...' : t('medicines.saveAll')}
                             </button>
-                            <button onClick={handleReset} className="btn-secondary text-sm py-2">
-                                Start Over
-                            </button>
+                        </div>
+
+                        {/* Interaction panel */}
+                        {interactions && <DrugInteractions interactions={interactions} />}
+
+                        {/* Medicine cards */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {analysisResults.map((result, idx) =>
+                                result.success ? (
+                                    <MedicineCard key={idx} data={result.data} index={idx} />
+                                ) : (
+                                    <div key={idx} className="glass-card p-6 border-red-500/20 bg-red-500/5">
+                                        <p className="text-red-400 text-sm font-medium">
+                                            ❌ Error analyzing {result.medicine || 'Unknown'}:
+                                        </p>
+                                        <p className="text-red-400/70 text-xs mt-1">{result.error}</p>
+                                    </div>
+                                )
+                            )}
                         </div>
                     </div>
-
-                    {/* Interaction panel */}
-                    {interactions && <DrugInteractions interactions={interactions} />}
-
-                    {/* Medicine cards */}
-                    <div className="space-y-3">
-                        {analysisResults.map((result, idx) =>
-                            result.success ? (
-                                <MedicineCard key={idx} data={result.data} index={idx} />
-                            ) : (
-                                <div key={idx} className="glass-card p-4 border-red-500/20">
-                                    <p className="text-red-400 text-sm">
-                                        ❌ {result.medicine || 'Unknown'}: {result.error}
-                                    </p>
-                                </div>
-                            )
-                        )}
-                    </div>
-                </div>
-            )}
+                )}
+            </div>
         </div>
     );
 };

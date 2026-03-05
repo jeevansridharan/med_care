@@ -73,26 +73,42 @@ const ScheduleTimeline = ({ onSave }) => {
             </div>
 
             {/* Entries */}
-            <div className="space-y-3">
+            <div className="space-y-4">
                 {entries.map((entry, idx) => (
-                    <div key={idx} className="glass-card p-4 fade-in-up">
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                            <div className="md:col-span-2">
-                                <label className="block text-xs text-gray-500 mb-1">{t('schedule.medicineName')} *</label>
-                                <input
-                                    type="text"
-                                    value={entry.medicineName}
-                                    onChange={(e) => updateEntry(idx, 'medicineName', e.target.value)}
-                                    placeholder="e.g. Paracetamol"
-                                    className="input-field text-sm py-2"
-                                />
+                    <div key={idx} className="glass-card p-6 fade-in-up relative group/entry">
+                        <div className="flex items-center justify-between mb-4 pb-4 border-b border-white/5">
+                            <span className="text-xs font-black text-indigo-400 uppercase tracking-widest bg-indigo-500/10 px-2 py-1 rounded">
+                                Medicine #{idx + 1}
+                            </span>
+                            {entries.length > 1 && (
+                                <button
+                                    onClick={() => removeEntry(idx)}
+                                    className="p-1.5 rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-all opacity-0 group-hover/entry:opacity-100"
+                                >
+                                    <Trash2 size={16} />
+                                </button>
+                            )}
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                            <div className="md:col-span-5">
+                                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5 ml-1">{t('schedule.medicineName')}</label>
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        value={entry.medicineName}
+                                        onChange={(e) => updateEntry(idx, 'medicineName', e.target.value)}
+                                        placeholder="e.g. Advil"
+                                        className="input-field text-sm py-2.5"
+                                    />
+                                </div>
                             </div>
-                            <div>
-                                <label className="block text-xs text-gray-500 mb-1">{t('schedule.time')}</label>
+                            <div className="md:col-span-4">
+                                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5 ml-1">{t('schedule.time')}</label>
                                 <select
                                     value={entry.time}
                                     onChange={(e) => updateEntry(idx, 'time', e.target.value)}
-                                    className="input-field text-sm py-2"
+                                    className="input-field text-sm py-2.5 cursor-pointer"
                                 >
                                     {TIME_SLOTS.map(slot => (
                                         <option key={slot} value={slot}>
@@ -101,35 +117,26 @@ const ScheduleTimeline = ({ onSave }) => {
                                     ))}
                                 </select>
                             </div>
-                            <div>
-                                <label className="block text-xs text-gray-500 mb-1">{t('schedule.dosage')}</label>
-                                <div className="flex gap-2">
-                                    <input
-                                        type="text"
-                                        value={entry.dosage}
-                                        onChange={(e) => updateEntry(idx, 'dosage', e.target.value)}
-                                        placeholder="500mg"
-                                        className="input-field text-sm py-2 flex-1"
-                                    />
-                                    {entries.length > 1 && (
-                                        <button
-                                            onClick={() => removeEntry(idx)}
-                                            className="w-9 h-9 flex items-center justify-center rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 transition-colors flex-shrink-0"
-                                        >
-                                            <Trash2 size={14} />
-                                        </button>
-                                    )}
-                                </div>
+                            <div className="md:col-span-3">
+                                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5 ml-1">{t('schedule.dosage')}</label>
+                                <input
+                                    type="text"
+                                    value={entry.dosage}
+                                    onChange={(e) => updateEntry(idx, 'dosage', e.target.value)}
+                                    placeholder="500mg"
+                                    className="input-field text-sm py-2.5"
+                                />
                             </div>
                         </div>
-                        {/* Notes */}
-                        <div className="mt-3">
+
+                        <div className="mt-4">
+                            <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5 ml-1">{t('schedule.notes')}</label>
                             <input
                                 type="text"
                                 value={entry.notes}
                                 onChange={(e) => updateEntry(idx, 'notes', e.target.value)}
-                                placeholder={`${t('schedule.notes')} (optional)`}
-                                className="input-field text-sm py-2"
+                                placeholder="After food, with milk, etc."
+                                className="input-field text-sm py-2.5 bg-white/[0.02]"
                             />
                         </div>
                     </div>
