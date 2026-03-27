@@ -1,21 +1,26 @@
 import axios from 'axios';
 
+// Long timeout for AI analysis (up to 2 min)
 const api = axios.create({
     baseURL: '/api',
-    timeout: 120000, // 2 minutes for AI analysis
-    headers: {
-        'Content-Type': 'application/json',
-    },
+    timeout: 120000,
+    headers: { 'Content-Type': 'application/json' },
 });
 
-// Response interceptor for error handling
-api.interceptors.response.use(
-    (response) => response.data,
-    (error) => {
-        const message = error?.response?.data?.message || error.message || 'Network error';
-        return Promise.reject(new Error(message));
-    }
-);
+// Short timeout for DB-backed reads (fail fast if MongoDB is offline)
+const dbApi = axios.create({
+    baseURL: '/api',
+    timeout: 8000,
+    headers: { 'Content-Type': 'application/json' },
+});
+
+const handleError = (error) => {
+    const message = error?.response?.data?.message || error.message || 'Network error';
+    return Promise.reject(new Error(message));
+};
+
+api.interceptors.response.use((r) => r.data, handleError);
+dbApi.interceptors.response.use((r) => r.data, handleError);
 
 // Medicine API
 export const medicineAPI = {
@@ -31,19 +36,19 @@ export const medicineAPI = {
     analyze: (medicines, language = 'en') =>
         api.post('/medicine/analyze', { medicines, language }),
 
-    save: (data) => api.post('/medicine/save', data),
+    save: (data) => dbApi.post('/medicine/save', data),
 
     getHistory: (params = {}) =>
-        api.get('/medicine/history', { params }),
+        dbApi.get('/medicine/history', { params }),
 };
 
 // Schedule API
 export const scheduleAPI = {
-    create: (data) => api.post('/schedule/create', data),
-    getAll: () => api.get('/schedule/all'),
-    getById: (id) => api.get(`/schedule/${id}`),
-    update: (id, data) => api.put(`/schedule/${id}`, data),
-    delete: (id) => api.delete(`/schedule/${id}`),
+    create: (data) => dbApi.post('/schedule/create', data),
+    getAll: () => dbApi.get('/schedule/all'),
+    getById: (id) => dbApi.get(`/schedule/${id}`),
+    update: (id, data) => dbApi.put(`/schedule/${id}`, data),
+    delete: (id) => dbApi.delete(`/schedule/${id}`),
 };
 
 export default api;

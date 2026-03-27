@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, Plus, Trash2, Sparkles, ShieldCheck } from 'lucide-react';
+import { AlertTriangle, Plus, Trash2, Sparkles, ShieldCheck, Activity } from 'lucide-react';
 import { medicineAPI } from '../api';
 import DrugInteractions from '../components/DrugInteractions';
 import { toast } from 'react-hot-toast';
@@ -12,6 +12,7 @@ const InteractionsPage = () => {
     const [results, setResults] = useState(null);
 
     const handleAddMedicine = () => {
+        if (medicines.length >= 10) return toast.error('Maximum 10 medicines allowed');
         setMedicines([...medicines, '']);
     };
 
@@ -48,107 +49,139 @@ const InteractionsPage = () => {
         }
     };
 
+    const activeCount = medicines.filter(m => m.trim()).length;
+
     return (
-        <div className="space-y-8 fade-in-up">
-            <div className="space-y-2">
-                <h1 className="text-3xl font-black text-white flex items-center gap-3">
-                    <ShieldCheck className="text-indigo-400" size={32} />
-                    Drug <span className="gradient-text">Interactions</span>
-                </h1>
-                <p className="text-gray-400">Check if your medications safe to take together using our AI Clinical Engine.</p>
+        <div className="space-y-7 fade-in-up">
+            {/* Page Header */}
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+                <div className="space-y-1">
+                    <div className="flex items-center gap-2 mb-1">
+                        <span className="badge badge-primary text-[10px]">Clinical Engine</span>
+                    </div>
+                    <h1 className="text-2xl sm:text-3xl font-black text-white flex items-center gap-3">
+                        <ShieldCheck className="text-indigo-400" size={28} />
+                        Drug <span className="gradient-text">Interactions</span>
+                    </h1>
+                    <p className="text-gray-500 text-sm">Check if your medications are safe to take together.</p>
+                </div>
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-12 gap-10 items-start">
-                {/* Input Panel */}
-                <div className="xl:col-span-5 glass-card p-10 space-y-8 sticky top-10">
+            {/* Main Grid */}
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+                {/* ── Input Panel ── */}
+                <div className="xl:col-span-5 glass-card p-6 space-y-6 sticky top-6">
+                    {/* Card Header */}
                     <div className="flex items-center justify-between">
-                        <div className="space-y-1">
-                            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                                <Plus size={20} className="text-indigo-400" />
+                        <div>
+                            <h2 className="text-base font-bold text-white flex items-center gap-2">
+                                <Plus size={17} className="text-indigo-400" />
                                 Medication List
                             </h2>
-                            <p className="text-xs text-gray-500">Minimum 2 required for check</p>
+                            <p className="text-xs text-gray-500 mt-0.5">Enter minimum 2 medications</p>
                         </div>
-                        <span className="badge badge-primary px-3 py-1.5">
-                            {medicines.filter(m => m).length} Active
+                        <span className={`badge text-[11px] ${activeCount >= 2 ? 'badge-success' : 'badge-primary'}`}>
+                            {activeCount} Active
                         </span>
                     </div>
 
-                    <div className="space-y-4">
+                    {/* Medicine Inputs */}
+                    <div className="space-y-3">
                         {medicines.map((med, index) => (
-                            <div key={index} className="group relative flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-[10px] font-bold text-gray-500 group-focus-within:border-indigo-500/50 transition-colors">
-                                    0{index + 1}
+                            <div key={index} className="group relative flex items-center gap-2.5">
+                                <div className="w-7 h-7 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-[10px] font-bold text-indigo-400 flex-shrink-0">
+                                    {String(index + 1).padStart(2, '0')}
                                 </div>
                                 <input
                                     type="text"
                                     value={med}
                                     onChange={(e) => handleUpdateMedicine(index, e.target.value)}
-                                    placeholder="e.g. Warfarin"
-                                    className="input-field py-2.5 pr-12"
+                                    onKeyDown={(e) => e.key === 'Enter' && handleAddMedicine()}
+                                    placeholder={`Medicine ${index + 1}, e.g. Warfarin`}
+                                    className="input-field py-2.5 pr-10 text-sm"
                                 />
                                 {medicines.length > 2 && (
                                     <button
                                         onClick={() => handleRemoveMedicine(index)}
-                                        className="absolute right-3 p-1.5 rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100"
+                                        className="absolute right-2.5 p-1 rounded-lg text-gray-600 hover:text-red-400 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100"
                                     >
-                                        <Trash2 size={16} />
+                                        <Trash2 size={14} />
                                     </button>
                                 )}
                             </div>
                         ))}
                     </div>
 
-                    <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                    {/* Actions */}
+                    <div className="flex flex-col sm:flex-row gap-3">
                         <button
                             onClick={handleAddMedicine}
-                            className="btn-secondary flex-1 flex items-center justify-center gap-2 py-4 shadow-sm"
+                            disabled={medicines.length >= 10}
+                            className="btn-secondary flex-1 flex items-center justify-center gap-2 py-3 text-sm disabled:opacity-40"
                         >
-                            <Plus size={18} />
+                            <Plus size={16} />
                             Add Medicine
                         </button>
                         <button
                             onClick={handleCheckInteractions}
-                            disabled={isAnalyzing}
-                            className="btn-primary flex-[1.5] flex items-center justify-center gap-2 py-4"
+                            disabled={isAnalyzing || activeCount < 2}
+                            className="btn-primary flex-[1.4] flex items-center justify-center gap-2 py-3 text-sm disabled:opacity-50"
                         >
                             {isAnalyzing ? (
-                                <div className="spinner !w-5 !h-5 !border-white/20 !border-top-white" />
+                                <div className="spinner !w-4 !h-4" />
                             ) : (
                                 <>
-                                    <Sparkles size={20} />
+                                    <Sparkles size={16} />
                                     Check Interactions
                                 </>
                             )}
                         </button>
                     </div>
 
-                    <div className="p-5 rounded-3xl bg-amber-500/[0.03] border border-amber-500/10 flex gap-4">
-                        <AlertTriangle className="text-amber-500/60 shrink-0 mt-0.5" size={20} />
-                        <p className="text-[11px] text-amber-500/60 leading-relaxed font-medium">
-                            AI Clinical Engine analysis is for informational purposes. Consult your doctor before changing meds.
+                    {/* Disclaimer */}
+                    <div className="p-4 rounded-2xl bg-amber-500/[0.04] border border-amber-500/12 flex gap-3 items-start">
+                        <AlertTriangle className="text-amber-500/50 shrink-0 mt-0.5" size={16} />
+                        <p className="text-[11px] text-amber-500/60 leading-relaxed">
+                            AI analysis is for informational purposes only. Always consult your doctor before changing medications.
                         </p>
                     </div>
                 </div>
 
-                {/* Results Panel */}
-                <div className="xl:col-span-7 space-y-6">
+                {/* ── Results Panel ── */}
+                <div className="xl:col-span-7">
                     {results ? (
-                        <div className="fade-in-up">
-                            <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-3 ml-2">
-                                <Activity size={20} className="text-cyan-400" />
+                        <div className="fade-in-up space-y-4">
+                            <h3 className="text-base font-bold text-white flex items-center gap-2.5 pl-1">
+                                <Activity size={18} className="text-cyan-400" />
                                 Analysis Results
                             </h3>
                             <DrugInteractions interactions={results} />
                         </div>
                     ) : (
-                        <div className="h-full min-h-[500px] border border-dashed border-white/10 bg-white/[0.01] rounded-[3rem] flex flex-col items-center justify-center p-12 text-center gap-6 group">
-                            <div className="w-24 h-24 rounded-full bg-white/[0.02] border border-white/5 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform duration-500">
-                                <AlertTriangle className="text-gray-700" size={48} />
+                        <div className="min-h-[420px] border border-dashed border-white/8 bg-white/[0.01] rounded-[2rem] flex flex-col items-center justify-center p-10 text-center gap-5">
+                            <div className="w-20 h-20 rounded-full bg-white/[0.02] border border-dashed border-white/10 flex items-center justify-center">
+                                <ShieldCheck className="text-gray-700" size={36} />
                             </div>
                             <div className="space-y-2">
-                                <h3 className="text-white font-bold text-xl uppercase tracking-tighter">Ready for Scan</h3>
-                                <p className="text-gray-500 text-sm max-w-[300px] mx-auto leading-relaxed">Add at least two medications to evaluate clinical safety and risk factors.</p>
+                                <h3 className="text-white font-bold text-lg tracking-tight">Ready for Scan</h3>
+                                <p className="text-gray-500 text-sm max-w-[260px] mx-auto leading-relaxed">
+                                    Add at least two medications to evaluate clinical safety and risk factors.
+                                </p>
+                            </div>
+                            <div className="flex gap-2 flex-wrap justify-center">
+                                {['Aspirin', 'Warfarin', 'Metformin'].map(ex => (
+                                    <button
+                                        key={ex}
+                                        onClick={() => {
+                                            const empty = medicines.findIndex(m => !m.trim());
+                                            if (empty !== -1) handleUpdateMedicine(empty, ex);
+                                            else if (medicines.length < 10) setMedicines(m => [...m, ex]);
+                                        }}
+                                        className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:border-indigo-500/40 transition-all"
+                                    >
+                                        + {ex}
+                                    </button>
+                                ))}
                             </div>
                         </div>
                     )}

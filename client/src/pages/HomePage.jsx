@@ -101,15 +101,15 @@ const HomePage = () => {
     };
 
     return (
-        <div className="space-y-8 fade-in-up">
+        <div className="space-y-7 fade-in-up">
             {/* Header Area */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-                <div className="space-y-2">
-                    <h1 className="text-3xl font-black text-white flex items-center gap-3">
-                        <Activity className="text-indigo-400" size={32} />
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                <div className="space-y-1">
+                    <h1 className="text-2xl sm:text-3xl font-black text-white flex items-center gap-3">
+                        <Activity className="text-indigo-400" size={28} />
                         Analyze <span className="gradient-text">Medications</span>
                     </h1>
-                    <p className="text-gray-400">Upload prescriptions or enter names to get AI-powered medical insights.</p>
+                    <p className="text-gray-500 text-sm">Upload prescriptions or enter names to get AI-powered medical insights.</p>
                 </div>
 
                 {step > 1 && (
