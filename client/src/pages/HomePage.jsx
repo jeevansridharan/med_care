@@ -1,21 +1,22 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-hot-toast';
-import { Save, Sparkles, UploadCloud, Activity } from 'lucide-react';
+import { BookMarked, Sparkles, UploadCloud, Activity } from 'lucide-react';
 import ImageUploader from '../components/ImageUploader';
 import MedicineList from '../components/MedicineList';
 import MedicineCard from '../components/MedicineCard';
 import DrugInteractions from '../components/DrugInteractions';
 import { medicineAPI } from '../api';
+import { saveToHistory } from '../hooks/useLocalHistory';
 
 const HomePage = () => {
     const { t, i18n } = useTranslation();
     const [isExtracting, setIsExtracting] = useState(false);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
-    const [isSaving, setIsSaving] = useState(false);
     const [medicines, setMedicines] = useState([]);
     const [analysisResults, setAnalysisResults] = useState([]);
     const [interactions, setInteractions] = useState(null);
+    const [rawInput, setRawInput] = useState('');       // track input for history
     const [step, setStep] = useState(1); // 1=upload, 2=list, 3=results
 
     const handleFileAccepted = async (file) => {
@@ -38,6 +39,7 @@ const HomePage = () => {
 
     const handleTextSubmit = async (text) => {
         setIsExtracting(true);
+        setRawInput(text);  // remember input for history
         try {
             const res = await medicineAPI.extractFromText(text);
             if (res.success) {
@@ -62,7 +64,10 @@ const HomePage = () => {
                 setAnalysisResults(res.results);
                 setInteractions(res.interactions);
                 setStep(3);
-                toast.success('Analysis complete!');
+                // ── Auto-save to localStorage history ──
+                const inputLabel = rawInput.trim() || medicines.join(', ');
+                saveToHistory(inputLabel, res.results, res.interactions, i18n.language);
+                toast.success('Analysis complete! Saved to history.');
             }
         } catch (err) {
             toast.error(err.message || 'Analysis failed');
@@ -75,28 +80,13 @@ const HomePage = () => {
         setMedicines(medicines.filter((_, i) => i !== idx));
     };
 
-    const handleSaveAll = async () => {
-        setIsSaving(true);
-        try {
-            const successful = analysisResults.filter(r => r.success && !r.data?.error);
-            await Promise.all(
-                successful.map(r => medicineAPI.save({
-                    ...r.data,
-                    language: i18n.language,
-                }))
-            );
-            toast.success(`${successful.length} medicine${successful.length !== 1 ? 's' : ''} saved to history!`);
-        } catch (err) {
-            toast.error('Failed to save some medicines');
-        } finally {
-            setIsSaving(false);
-        }
-    };
+    // (No longer needed — history auto-saves on analyze)
 
     const handleReset = () => {
         setMedicines([]);
         setAnalysisResults([]);
         setInteractions(null);
+        setRawInput('');
         setStep(1);
     };
 
@@ -176,14 +166,10 @@ const HomePage = () => {
                                 <Sparkles size={24} className="text-indigo-400" />
                                 AI Medical Insights
                             </h2>
-                            <button
-                                onClick={handleSaveAll}
-                                disabled={isSaving}
-                                className="btn-primary text-sm flex items-center gap-2 py-2 px-6"
-                            >
-                                <Save size={16} />
-                                {isSaving ? 'Saving...' : t('medicines.saveAll')}
-                            </button>
+                            <span className="flex items-center gap-1.5 text-xs text-emerald-400 font-semibold">
+                                <BookMarked size={14} />
+                                Saved to History
+                            </span>
                         </div>
 
                         {/* Interaction panel */}
