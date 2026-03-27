@@ -13,8 +13,12 @@ const PORT = process.env.PORT || 5000;
 connectDB();
 
 // Middleware
+const allowedOrigins = process.env.NODE_ENV === 'production'
+  ? (process.env.CLIENT_ORIGIN || '').split(',')
+  : /^http:\/\/localhost(:\d+)?$/; // allow ANY localhost port in dev
+
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3000'],
+  origin: allowedOrigins,
   credentials: true,
 }));
 app.use(express.json({ limit: '50mb' }));

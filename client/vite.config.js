@@ -8,12 +8,17 @@ export default defineConfig({
     tailwindcss(),
   ],
   server: {
-    port: 5173,
+    port: 5174,
     proxy: {
       '/api': {
         target: 'http://localhost:5000',
         changeOrigin: true,
         secure: false,
+        configure: (proxy) => {
+          proxy.on('error', (err) => {
+            console.error('[Vite Proxy] Backend unreachable:', err.message);
+          });
+        },
       },
     },
   },
